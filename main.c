@@ -1,10 +1,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
-#include <stdbool.h>
-#include "chip-8.h"
 
-#define S_WIDTH 640
-#define S_HEIGHT 320
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#include "chip-8.h"
 
 void clr(SDL_Renderer *renderer) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
@@ -53,13 +55,61 @@ void draw_pixel(SDL_Renderer *renderer, SDL_Rect *rect) {
     SDL_RenderPresent(renderer);
 }
 
+ void init_rand() {
+    /* Intializes random number generator */
+    time_t t;
+    srand((unsigned) time(&t));
+ }
+ void load_rom(chp8_t * c8, const char *rom) {
+    FILE *pFile;
+    unsigned char buffer[4096] = {0};
+    long lSize, result;
+
+    //const char *rom_path = "roms3/fishie.ch8";
+
+    pFile = fopen(rom, "rb");
+    if (pFile == NULL) {
+        fputs("File error\n", stderr);
+        exit(1);
+    } else {
+        fputs("File OK\n", stderr);
+    }
+
+    // obtain file size:
+    fseek(pFile, 0, SEEK_END);
+    lSize = ftell(pFile);
+    rewind(pFile);
+
+    // copy the file into the buffer:
+    result = fread(buffer, 1, lSize, pFile);
+    if (result != lSize) {
+        fputs("Reading error\n", stderr);
+        exit(3);
+    } else {
+        fputs("Reading OK\n", stderr);
+    }
+
+    /* the whole file is now loaded in the memory buffer. */
+    printf("Size of buffer: %ld bytes \n", sizeof(buffer));
+    for (int i = 0; i < lSize; i = i + 2)
+        printf("%02x%02x  ", buffer[i], buffer[i+1]);
+    putchar('\n');
+    // terminate
+    fclose(pFile);
+ }
+
 int main() {
     SDL_Window *win;
     SDL_Renderer *renderer;
     SDL_Rect rect;
 
+    chp8_t * c8;
+    //const char *rom = "roms3/fishie.ch8";
+
+    init_rand();
+    c8 = init_chip(); /*TODO: Load rom on init */
+    load_rom(c8, "../roms3/fishie.ch8");
     init_video(&win, &renderer);
-    init_chip();
 
     bool catched_event = false;
     while (!catched_event) {
