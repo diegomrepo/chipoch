@@ -2,12 +2,19 @@
 
 A simple C chip-8 implementation
 
-<!---## Table of Contents
+## Table of Contents
 
+- [Buiding](#building)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Support](#support)
 - [Contributing](#contributing)
+
+## Building
+To build using CMake, inside the project dir:
+```sh
+ cmake --build _builds/
+```
 
 ## Installation
 
