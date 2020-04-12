@@ -11,7 +11,7 @@ A simple C chip-8 implementation
 - [Contributing](#contributing)
 
 ## Building
-To build using CMake, inside the project dir:
+To build using CMake, once on the project dir type:
 ```sh
  cmake --build _builds/
 ```
