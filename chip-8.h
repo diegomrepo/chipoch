@@ -25,6 +25,7 @@ typedef struct
 
 chp8_t * init_chip();
 uint8_t chip_rand();
+void execute(uint16_t op);
 
 static const uint8_t fontset[] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
