@@ -114,23 +114,20 @@ void dump_memory(chp8_t *c8) {
 
 void cycle(chp8_t *c8, bool *event) {
 
-    //dump_memory(c8);
+    // dump_memory(c8);
     uint16_t opcode = 0;
 
     printf("PC = 0x%04x\n", c8->pc);
-    opcode = c8->memory[c8->pc] << 8 | c8->memory[c8->pc + 1]; // get instruction
+    opcode =
+        c8->memory[c8->pc] << 8 | c8->memory[c8->pc + 1]; // get instruction
     c8->pc = c8->pc + 2;
     printf("opcode = 0x%04x\n", opcode);
-    if (opcode == 0) *event = true;
+    if (opcode == 0)
+        *event = true;
 
     int num = chip_rand();
-    //putchar('\n'); printf("%d", num); putchar('\n');
-
-    /*
-    if (num % 255 == 0)
-        *event = true;
-    SDL_Delay(100);
-    */
+    /* putchar('\n'); printf("%d", num); putchar('\n');*/
+    /* if (num % 255 == 0) *event = true; SDL_Delay(100); */
     execute(opcode);
     if (c8->pc > RAM_LIMIT)
         *event = true;
@@ -142,11 +139,13 @@ int main() {
     SDL_Rect rect;
 
     chp8_t *c8;
-    // const char *rom = "roms3/fishie.ch8";
+    const char *rom = "../roms/PONG";
+    //const char *rom = "../roms2/RandomNumberTestMatthewMikolay2010.ch8";
 
     init_rand();
     c8 = init_chip(); /*TODO: Load rom on init */
-    load_rom(c8, "../roms2/RandomNumberTestMatthewMikolay2010.ch8");
+    // load_rom(c8, "../roms2/RandomNumberTestMatthewMikolay2010.ch8");
+    load_rom(c8, rom);
     init_video(&win, &renderer);
     bool catched_event = false;
     while (!catched_event) {

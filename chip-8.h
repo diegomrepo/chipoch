@@ -3,6 +3,7 @@
 
 
 #define S_WIDTH 640
+#define OPCODE_MAX 0xFF66 /* Top limit for opcodes */
 #define S_HEIGHT 320
 #define MEM_SIZE 0x1000
 #define START_ADDR 0x200 /* Where programs start in RAM */
