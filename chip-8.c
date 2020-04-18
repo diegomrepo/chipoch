@@ -1,18 +1,44 @@
-#include "chip-8.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+
+#include "chip-8.h"
+#include "video.h"
+
+void cycle(chp8_t *c8, bool *event) {
+    // dump_memory(c8);
+    uint16_t opcode = 0;
+
+    printf("PC = 0x%04x\n", c8->pc);
+    opcode =
+        c8->memory[c8->pc] << 8 | c8->memory[c8->pc + 1]; // get instruction
+    c8->pc = c8->pc + 2;
+    printf("opcode = 0x%04x\n", opcode);
+    if (opcode == 0)
+        *event = true;
+
+    int num = chip_rand();
+    /* putchar('\n'); printf("%d", num); putchar('\n');*/
+    /* if (num % 255 == 0) *event = true; SDL_Delay(100); */
+    execute(opcode);
+    if (c8->pc > RAM_LIMIT)
+        *event = true;
+}
 
 uint8_t chip_rand() { return rand() % 256; }
 void op0NNN(uint16_t op) {
-    printf("Opcode function is: %s with %04x\n", __func__, op);
+     printf("Opcode function is: %s with %04x\n", __func__, op);
 }
 void op00E0(uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
+    printf("** CLS **");
+    clr(renderer, BLACK);
 }
 void op00EE(uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
+    //STACK
 }
 void op1NNN(uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);

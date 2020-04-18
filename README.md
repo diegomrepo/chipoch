@@ -1,4 +1,4 @@
-# README
+#README
 
 A simple C chip-8 implementation
 
