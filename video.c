@@ -29,15 +29,14 @@ void showbits( unsigned int x )
     printf("\n");
 }
 
-void draw8bits_fb(chp8_t *c8, uint8_t sprite, uint8_t y, uint8_t x) {
+void draw8bits_fb(chp8_t *c8, uint8_t sprite, uint8_t x, uint8_t y) {
     //printf("Enter %s\n", __func__);
     uint8_t bit = 0;
-    printf("\nSprite: %02x | x: %d | y: %d", sprite, x, y);
-    puts("");
+    //printf("\nSprite: %02x | x: %d | y: %d", sprite, x, y);
+    //puts("");
     //SDL_Delay(500);
-
     //c8->video[0] = 1; c8->video[1] = 1; c8->video[2] = 1;
-    puts("sprite: ");showbits(sprite);
+    //puts("sprite: ");showbits(sprite);
     //uint8_t sprite_t = 0xaa;
     //printf("SPRITE (I_reg) %04x\n", sprite);
     for (int i = 0; i < 8; i++, bit = 0) {
@@ -49,17 +48,17 @@ void draw8bits_fb(chp8_t *c8, uint8_t sprite, uint8_t y, uint8_t x) {
         bit = bit & 0xB001;
         //printf("bit, final: %04x - ", bit);
         int tmp = 64 * y + x + i;
-        printf("video arr:%d | ",tmp);
+        //printf("video arr:%d | ",tmp);
         if (c8->video[tmp] && bit)
             c8->V[0xf] = 1;
         int v_tmp = c8->video[tmp] ^ bit;
-        printf("video[%d]=%02x - bit=%02x xor v_t=%02x",tmp,c8->video[tmp], bit,v_tmp);
+        //printf("video[%d]=%02x - bit=%02x xor v_t=%02x",tmp,c8->video[tmp], bit,v_tmp);
         c8->video[tmp] ^= bit;
         //c8->video[tmp] = 1;
         //sprite_t >>= 1;
         //printf("i:%d sprite: %04x bit:%0x\n", i, sprite, bit);
     }
-    dump_video(c8);
+    //dump_video(c8);
     //SDL_Quit();
     //exit(EXIT_SUCCESS);
     //printf("Leave %s\n", __func__);

@@ -119,11 +119,12 @@ int main(int argc, char** argv) {
     else {
         //rom = "/home/dmarfil/projects/chip-8/roms/PONG";
         //rom = "/home/dmarfil/projects/chip-8/3rd-party/chip-8/roms/Fishie.ch8";
-        //rom = "/home/dmarfil/projects/chip-8/roms4/test_opcode.ch8";
+        rom = "/home/dmarfil/projects/chip-8/roms4/test_opcode.ch8";
         //rom = "/home/dmarfil/projects/chip-8/roms/PONG";
         //rom = "/home/dmarfil/projects/chip-8/roms2/IBMLogo.ch8";
         //rom = "/home/dmarfil/projects/chip-8/roms2/jason.ch8";
-        rom = "/home/dmarfil/projects/chip-8/roms2/RandomNumberTestMatthewMikolay2010.ch8";
+        //rom = "/home/dmarfil/Downloads/BC_test.ch8";
+        //rom = "/home/dmarfil/projects/chip-8/roms2/RandomNumberTestMatthewMikolay2010.ch8";
     }
 
     init_rand();

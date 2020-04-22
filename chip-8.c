@@ -174,17 +174,18 @@ void op8XN4(chp8_t *c8, uint16_t op) {
     printf("** 8xy4 - ADD Vx, Vy **\n");
     uint8_t x = (op & 0x0f00) >> 8;
     uint8_t y = (op & 0x00f0) >> 4;
-    uint16_t tmp = x + y;
+    uint16_t tmp = c8->V[x] + c8->V[y];
     c8->V[0xf] = (tmp >= 0x100);
     c8->V[x] = (uint8_t)tmp;
 }
 
 void op8XN5(chp8_t *c8, uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
+    /*rename*/
     printf("** 8xy5 - SUB Vx, Vy **\n");
     uint8_t x = (op & 0x0f00) >> 8;
     uint8_t y = (op & 0x00f0) >> 4;
-    int16_t tmp = x - y;
+    int16_t tmp = c8->V[x] - c8->V[y];
     c8->V[0xf] = (tmp >= 0);
     c8->V[x] = (uint8_t)tmp;
 }
@@ -195,8 +196,8 @@ void op8XN6(chp8_t *c8, uint16_t op) {
     uint8_t x = (op & 0x0f00) >> 8;
     uint8_t y = (op & 0x00f0) >> 4;
     /* y not used? */
-    c8->V[0xf] = x & 1;
-    c8->V[x] = x >> 1;
+    c8->V[0xf] = c8->V[x] & 1;
+    c8->V[x] = c8->V[x] >> 1;
 }
 
 void op8XN7(chp8_t *c8, uint16_t op) {
@@ -204,7 +205,7 @@ void op8XN7(chp8_t *c8, uint16_t op) {
     printf("** 8xy7 - SUBN Vx, Vy **\n");
     uint8_t x = (op & 0x0f00) >> 8;
     uint8_t y = (op & 0x00f0) >> 4;
-    int16_t tmp = y - x;
+    int16_t tmp = c8->V[y] - c8->V[x];
     c8->V[0xf] = (tmp >= 0);
     c8->V[x] = (uint8_t)tmp;
 }
@@ -215,8 +216,10 @@ void op8XNE(chp8_t *c8, uint16_t op) {
     uint8_t x = (op & 0x0f00) >> 8;
     uint8_t y = (op & 0x00f0) >> 4;
     /* y not used? */
-    c8->V[0xf] = x >> 7;
-    c8->V[x] = x << 1;
+    //uint8_t msb; = c8->V[x] & 0xb1000;
+    //msb; = c8->V[x] & 0xb1000;
+    c8->V[0xf] = c8->V[x] >> 7;
+    c8->V[x] = c8->V[x] << 1;
 }
 
 void op8XYN(chp8_t *c8, uint16_t op) {
@@ -284,7 +287,7 @@ void opDXYN(chp8_t *c8, uint16_t op) {
     }
     for (int i = 0; i < n; i++, tmp++) {
         printf("i:%d, x:%d y:%d", i, x, y);
-        draw8bits_fb(c8, c8->memory[tmp], c8->V[y]+i, c8->V[x]);
+        draw8bits_fb(c8, c8->memory[tmp], c8->V[x], c8->V[y]+i);
     }
 }
 
@@ -353,9 +356,10 @@ void opFX33(chp8_t *c8, uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
     puts("** Fx33 - LD B, Vx **");
     uint8_t x = (op & 0x0f00) >> 8;
-    c8->memory[c8->i_register] = (x / 100);
-    c8->memory[c8->i_register + 1] = (x % 100) / 10;
-    c8->memory[c8->i_register + 2] = x % 10;
+    uint8_t vx = c8->V[x];
+    c8->memory[c8->i_register] = (vx / 100);
+    c8->memory[c8->i_register + 1] = (vx % 100) / 10;
+    c8->memory[c8->i_register + 2] = vx % 10;
 }
 
 void opFX55(chp8_t *c8, uint16_t op) {
