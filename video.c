@@ -29,7 +29,7 @@ void showbits( unsigned int x )
     printf("\n");
 }
 
-void draw8bits_fb(chp8_t *c8, uint8_t sprite, uint8_t x, uint8_t y) {
+void draw8bits_fb(chp8_t *c8, uint8_t sprite, uint8_t y, uint8_t x) {
     //printf("Enter %s\n", __func__);
     uint8_t bit = 0;
     printf("\nSprite: %02x | x: %d | y: %d", sprite, x, y);
@@ -48,7 +48,7 @@ void draw8bits_fb(chp8_t *c8, uint8_t sprite, uint8_t x, uint8_t y) {
         //printf("bit, medium: %04x - ", bit);
         bit = bit & 0xB001;
         //printf("bit, final: %04x - ", bit);
-        int tmp = 64 * x + y + i;
+        int tmp = 64 * y + x + i;
         printf("video arr:%d | ",tmp);
         if (c8->video[tmp] && bit)
             c8->V[0xf] = 1;
