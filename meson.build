@@ -14,9 +14,9 @@ chipoch_exe = executable('chipoch',
            dependencies: [sdl2, math])
 
 #test('run', chipoch_exe)
-#run_command('/home/dmarfil/projects/chip-8/builddir/chipoch'). stdout().strip())
 #run_target('/home/dmarfil/projects/chip-8/builddir/chipoch')
-run_target('run', command : chipoch_exe)
+run_target('run', command : [chipoch_exe])
+#run_target('run', command : [chipoch_exe, '/home/dmarfil/projects/chip-8/roms2/RandomNumberTestMatthewMikolay2010.ch8'])
  #, depends: chipoch_exe )
 
 

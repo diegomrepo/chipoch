@@ -1,4 +1,5 @@
 /* chip-8.h */
+#pragma once
 #include <stdint.h>
 
 #define S_WIDTH 640
@@ -7,8 +8,10 @@
 #define MEM_SIZE 0x1000
 #define START_ADDR 0x200 /* Where programs start in RAM */
 #define TOTAL_RAM 4096
-#define RAM_LIMIT 0xE8F /* RAM limit for user programs */
+#define RAM_LIMIT 0xE8F /* Adressable top limit For user programs */
+#define STACK_SIZE 0xF
 
+/*TODO: Make this struct private */
 typedef struct {
     uint8_t video[64 * 32];
     uint8_t memory[MEM_SIZE];
@@ -18,14 +21,17 @@ typedef struct {
     uint16_t sp;          /* Stack pointer */
                           /* TODO: Add SDL delay timer & sound timer */
     uint16_t stack[0x10]; /* TODO: Move it to memory */
-    uint8_t key[0x10];    /* Implement as bitmap? */
+    uint8_t key[16];    /* Implement as bitmap? */
+    uint8_t dly_timer;
+    uint8_t snd_timer;
 
 } chp8_t;
 
-chp8_t *c8;
+// chp8_t *c8;
 chp8_t *init_chip();
 uint8_t chip_rand();
-void execute(uint16_t op);
+// void execute(uint16_t op);
+void execute(chp8_t *c8, uint16_t op);
 void cycle(chp8_t *c8, bool *event);
 
 static const uint8_t fontset[] = {
