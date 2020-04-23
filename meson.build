@@ -5,8 +5,8 @@ project('chipoch', 'c',
 sdl2 = meson.get_compiler('c').find_library('SDL2')
 math = meson.get_compiler('c').find_library('m')
 
-#chipoch_exe = executable('chipoch',
-executable('chipoch',
+chipoch_exe = executable('chipoch',
+#executable('chipoch',
            'video.c',
            'main.c',
            'chip-8.c',
@@ -16,7 +16,7 @@ executable('chipoch',
 
 #test('run', chipoch_exe)
 #run_target('/home/dmarfil/projects/chip-8/builddir/chipoch')
-#run_target('run', command : [chipoch_exe])
+run_target('run', command : [chipoch_exe])
 #run_target('run', command : [chipoch_exe, '/home/dmarfil/projects/chip-8/roms2/RandomNumberTestMatthewMikolay2010.ch8'])
  #, depends: chipoch_exe )
 

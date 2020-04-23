@@ -6,6 +6,7 @@
 
 #include "chip-8.h"
 #include "video.h"
+#define NUM_KEYS 16
 
 void cycle(chp8_t *c8, bool *event) {
     // dump_memory(c8);
@@ -15,37 +16,26 @@ void cycle(chp8_t *c8, bool *event) {
     printf(" | DT = %d", c8->dly_timer);
     printf(" | ST = %d", c8->dly_timer);
     printf(" | I = %04x\n", c8->i_register);
-    printf(" v0 = %02x", c8->V[0]);
-    printf(" v1 = %02x", c8->V[1]);
-    printf(" v2 = %02x", c8->V[2]);
-    printf(" v3 = %02x", c8->V[3]);
-    printf(" v4 = %02x", c8->V[4]);
-    printf(" v5 = %02x", c8->V[5]);
-    printf(" v6 = %02x", c8->V[6]);
-    printf(" v7 = %02x", c8->V[7]);
-    printf(" v8 = %02x", c8->V[8]);
-    printf(" v9 = %02x", c8->V[9]);
-    printf(" va = %02x", c8->V[0xa]);
-    printf(" vb = %02x", c8->V[0xb]);
-    printf(" vc = %02x", c8->V[0xc]);
-    printf(" vd = %02x", c8->V[0xd]);
-    printf(" ve = %02x", c8->V[0xe]);
-    printf(" vf = %02x", c8->V[0xf]);
+
+    for (int i = 0; i < NUM_KEYS; i++) {
+        printf(" k%d=%02x", i, c8->key[i]);
+    }
     puts("");
-    opcode =
-        c8->memory[c8->pc] << 8 | c8->memory[c8->pc + 1]; // get instruction
+    for (int i = 0; i < 16; i++) {
+        printf(" v%d = %02x", i, c8->V[i]);
+    }
+    puts("");
+
+    opcode = c8->memory[c8->pc] << 8 | c8->memory[c8->pc + 1]; // get instrc.
     c8->pc = c8->pc + 2;
     printf("opcode = 0x%04x\n", opcode);
     if (opcode == 0)
         *event = true;
 
     int num = chip_rand();
-    /* putchar('\n'); printf("%d", num); putchar('\n');*/
-    /* if (num % 255 == 0) *event = true; SDL_Delay(100); */
     execute(c8, opcode);
     if (c8->pc > RAM_LIMIT)
         *event = true;
-    memset(c8->key, 255, sizeof(c8->key)); /* TODO: Find out if this is best way */
 }
 
 uint8_t chip_rand() { return rand() % 256; }
@@ -216,8 +206,8 @@ void op8XNE(chp8_t *c8, uint16_t op) {
     uint8_t x = (op & 0x0f00) >> 8;
     uint8_t y = (op & 0x00f0) >> 4;
     /* y not used? */
-    //uint8_t msb; = c8->V[x] & 0xb1000;
-    //msb; = c8->V[x] & 0xb1000;
+    // uint8_t msb; = c8->V[x] & 0xb1000;
+    // msb; = c8->V[x] & 0xb1000;
     c8->V[0xf] = c8->V[x] >> 7;
     c8->V[x] = c8->V[x] << 1;
 }
@@ -261,8 +251,9 @@ void opCXNN(chp8_t *c8, uint16_t op) {
     uint8_t rand = chip_rand();
     uint8_t operation = rand & kk;
 
-    //c8->V[x] = chip_rand() & kk;
-    printf("kk: %02x x: %02x, rand(): %02x, operation: %02x",kk,  x, rand, operation);
+    // c8->V[x] = chip_rand() & kk;
+    printf("kk: %02x x: %02x, rand(): %02x, operation: %02x", kk, x, rand,
+           operation);
     puts("");
     c8->V[x] = operation;
 }
@@ -270,24 +261,16 @@ void opCXNN(chp8_t *c8, uint16_t op) {
 void opDXYN(chp8_t *c8, uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
     puts("** Dxyn - DRW Vx, Vy, nibble **");
-    // draw8bits_fb(c8, (uint8_t) {0xff}, 0, 0);
-    // draw8bits_fb(c8, (uint8_t) {0xff}, 5, 20);
-    // draw8bits_fb(c8, (uint8_t) {0xff}, 20, 60);
-    // DRAW
     uint8_t n = op & 0x000f;
     uint8_t y = (op & 0x00f0) >> 4;
     uint8_t x = (op & 0x0f00) >> 8;
     uint16_t tmp = c8->i_register;
-    printf("8 pixels width by %d pixels height", n);
-    printf("Memory at I: %04x\n", c8->memory[tmp]);
-    printf("V[x:%1x]: %02x V[y:%1x]: %02x\n",x,c8->V[x], y,c8->V[y] );
     if (tmp > MEM_SIZE) {
         printf("ERROR: I_register bigger than MEM_SIZE");
         exit(EXIT_FAILURE);
     }
     for (int i = 0; i < n; i++, tmp++) {
-        printf("i:%d, x:%d y:%d", i, x, y);
-        draw8bits_fb(c8, c8->memory[tmp], c8->V[x], c8->V[y]+i);
+        draw8bits_fb(c8, c8->memory[tmp], c8->V[x], c8->V[y] + i);
     }
 }
 
@@ -295,16 +278,18 @@ void opEX9E(chp8_t *c8, uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
     uint8_t x = (op & 0x0f00) >> 8;
     puts("** Ex9E - SKP Vx**");
-    if (c8->key[c8->V[x]] != 255)
+    if (c8->key[c8->V[x]] != 255) {
         c8->pc += 2;
+    }
 }
 
 void opEXA1(chp8_t *c8, uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
     puts("** ExA1 - SKNP Vx **");
     uint8_t x = (op & 0x0f00) >> 8;
-    if (c8->key[c8->V[x]] == 255)
+    if (c8->key[c8->V[x]] == 255) {
         c8->pc += 2;
+    }
 }
 
 void opFX07(chp8_t *c8, uint16_t op) {
@@ -326,7 +311,7 @@ void opFX15(chp8_t *c8, uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
     printf("** Fx15 - LD DT, Vx **\n");
     uint8_t x = (op & 0x0f00) >> 8;
-    //timer
+    // timer
     c8->dly_timer = c8->V[x];
 }
 
@@ -347,8 +332,7 @@ void opFX1E(chp8_t *c8, uint16_t op) {
 void opFX29(chp8_t *c8, uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
     uint8_t x = (op & 0x0f00) >> 8;
-    //printf("Memory at %04x:, %04x\n", (c8->V[x] & 0xf)*5, c8->memory[(c8->V[x] & 0xf)*5]);
-    c8->i_register = (c8->V[x] & 0xf)*5;
+    c8->i_register = (c8->V[x] & 0xf) * 5;
     puts("** Fx29 - LD F, Vx**");
 }
 
@@ -365,7 +349,8 @@ void opFX33(chp8_t *c8, uint16_t op) {
 void opFX55(chp8_t *c8, uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
     uint8_t x = (op & 0x0f00) >> 8;
-    printf("Storing in memory[%04x] all registers until v[%1x]", c8->i_register, x);
+    printf("Storing in memory[%04x] all registers until v[%1x]", c8->i_register,
+           x);
     for (int i = 0; i <= x; ++i)
         c8->memory[c8->i_register + i] = c8->V[i];
     /* If I too big, wrap around/modded when overflow ? */
@@ -376,7 +361,8 @@ void opFX65(chp8_t *c8, uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
     uint8_t x = (op & 0x0f00) >> 8;
     for (int i = 0; i <= x; ++i) {
-        printf("Storing in V[%1x] <- %02x | ",i,c8->memory[c8->i_register + i]);
+        printf("Storing in V[%1x] <- %02x | ", i,
+               c8->memory[c8->i_register + i]);
         puts("");
         c8->V[i] = c8->memory[c8->i_register + i];
     }
@@ -410,22 +396,14 @@ chp8_t *init_chip() {
     memset(c8->memory, 0, MEM_SIZE);         /* best way? */
     memset(c8->video, 0, sizeof(c8->video)); /* best way? */
     memset(c8->V, 0, sizeof(c8->V)); /* TODO: Find out if this is best way */
+    memset(c8->key, 255,
+           sizeof(c8->key)); /* TODO: Find out if this is best way */
+    memcpy(c8->memory, fontset, sizeof fontset);
     c8->i_register = 0;
     c8->pc = START_ADDR;
     c8->sp = 65535; /*-1*/
     c8->dly_timer = 0;
     c8->snd_timer = 0;
-      /*for(int i = 0; i < 80; ++i)
-        memory[i] = chip8_fontset[i]; changed */
-    memcpy(c8->memory, fontset, sizeof fontset);
-
-
-    /* typedef struct {
-        void (*op_fn)(void);
-        uint16_t op_name;
-    } cmd_pr;
-    cmd_pr *cmd_pointer[0x10000];
-    */
 
     /* Can we optimize with a while or a custom for? */
     for (int i = 0x0000; i < 0x1000; i++)

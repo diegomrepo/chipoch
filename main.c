@@ -1,8 +1,9 @@
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <math.h>
+
 #include "chip-8.h"
 #include "video.h"
 
@@ -89,42 +90,43 @@ void dump_video(chp8_t *c8) {
     printf("Leave %s\n", __func__);
 }
 void decrement_timer(chp8_t *c8, uint32_t *last_tick) {
-    #define DELAY 1
+#define DELAY 1
     uint32_t now = SDL_GetTicks();
-    if (DELAY >= 16) {
+    if (DELAY >= 17) {
         if (c8->dly_timer)
-           c8->dly_timer-= 1;
+            c8->dly_timer -= 1;
         else
-           c8->dly_timer-= 0;
+            c8->dly_timer -= 0;
         if (c8->snd_timer)
-           c8->snd_timer-= 1;
+            c8->snd_timer -= 1;
         else
-           c8->snd_timer-= 0;
+            c8->snd_timer -= 0;
     } else {
         uint32_t diff = *last_tick - now;
-        uint32_t ticks_since = diff/16;
-        c8->dly_timer = (uint8_t) fmax(0, c8->dly_timer - ticks_since);
-        c8->snd_timer = (uint8_t) fmax(0, c8->snd_timer - ticks_since);
+        uint32_t ticks_since = diff / 16;
+        c8->dly_timer = (uint8_t)fmax(0, c8->dly_timer - ticks_since);
+        c8->snd_timer = (uint8_t)fmax(0, c8->snd_timer - ticks_since);
     }
     *last_tick = now;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     uint32_t last_tick = SDL_GetTicks();
     printf("Enter %s\n", __func__);
     const char *rom;
     if (argv[1]) {
         rom = argv[1];
-    }
-    else {
-        //rom = "/home/dmarfil/projects/chip-8/roms/PONG";
-        //rom = "/home/dmarfil/projects/chip-8/3rd-party/chip-8/roms/Fishie.ch8";
-        rom = "/home/dmarfil/projects/chip-8/roms4/test_opcode.ch8";
-        //rom = "/home/dmarfil/projects/chip-8/roms/PONG";
-        //rom = "/home/dmarfil/projects/chip-8/roms2/IBMLogo.ch8";
-        //rom = "/home/dmarfil/projects/chip-8/roms2/jason.ch8";
-        //rom = "/home/dmarfil/Downloads/BC_test.ch8";
-        //rom = "/home/dmarfil/projects/chip-8/roms2/RandomNumberTestMatthewMikolay2010.ch8";
+    } else {
+        // rom = "/home/dmarfil/projects/chip-8/roms/PONG";
+        rom = "/home/dmarfil/projects/chip-8/roms/PONG2";
+        // rom =
+        // "/home/dmarfil/projects/chip-8/3rd-party/chip-8/roms/Fishie.ch8"; rom
+        // = "/home/dmarfil/projects/chip-8/roms4/test_opcode.ch8"; rom =
+        // "/home/dmarfil/projects/chip-8/roms/PONG"; rom =
+        // "/home/dmarfil/projects/chip-8/roms2/IBMLogo.ch8"; rom =
+        // "/home/dmarfil/projects/chip-8/roms2/jason.ch8"; rom =
+        // "/home/dmarfil/Downloads/BC_test.ch8"; rom =
+        // "/home/dmarfil/projects/chip-8/roms2/RandomNumberTestMatthewMikolay2010.ch8";
     }
 
     init_rand();
@@ -135,14 +137,14 @@ int main(int argc, char** argv) {
     bool exit_event = false;
     while (!exit_event) {
         // c8->video[yy*63+xx] = bb;
-        //dump_video(c8);
-        poll_events(&exit_event, c8, false);
+        // dump_video(c8);
         cycle(c8, &exit_event);
+        poll_events(&exit_event, c8, false);
         draw_fb(c8, renderer);
         decrement_timer(c8, &last_tick);
         SDL_Delay(DELAY);
     }
 
-    //printf("Press ENTER key to Continue\n");char ch; scanf("%c",&ch);
     free_video(renderer, win);
+    printf("Press ENTER key to Continue\n");char ch; scanf("%c",&ch);
 }
