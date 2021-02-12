@@ -60,6 +60,7 @@ dkms.conf
 # Meson Directories
 meson-logs
 meson-private
+builddir
 
 # Meson Files
 meson_benchmark_setup.dat
