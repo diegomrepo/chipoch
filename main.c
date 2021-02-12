@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
         rom = argv[1];
     } else {
         // rom = "/home/dmarfil/projects/chip-8/roms/PONG";
-        rom = "/home/dmarfil/projects/chip-8/roms/PONG2";
+        rom = "../roms/PONG2";
         // rom =
         // "/home/dmarfil/projects/chip-8/3rd-party/chip-8/roms/Fishie.ch8"; rom
         // = "/home/dmarfil/projects/chip-8/roms4/test_opcode.ch8"; rom =
