@@ -6,150 +6,158 @@
 #include "main.h"
 #include "video.h"
 
-void draw_fb(chp8_t *c8, SDL_Renderer *renderer) {
-    int color;
-    for (int i = 0; i < 32; ++i)
-        for (int j = 0; j < 64; ++j) {
-            if (c8->video[i * 64 + j] != 0)
-                color = 255;
-            else
-                color = 0;
-            draw_pixel(renderer, &(SDL_Rect){.x = j, .y = i}, color);
-        }
-    SDL_RenderPresent(renderer);
+void draw_fb(chp8_t *c8, SDL_Renderer *renderer)
+{
+	int color;
+	for (int i = 0; i < 32; ++i)
+		for (int j = 0; j < 64; ++j) {
+			if (c8->video[i * 64 + j] != 0)
+				color = 255;
+			else
+				color = 0;
+			draw_pixel(renderer, &(SDL_Rect){ .x = j, .y = i },
+				   color);
+		}
+	SDL_RenderPresent(renderer);
 }
-void showbits(unsigned int x) {
-    for (int i = (sizeof(uint8_t) * 8) - 1; i >= 0; i--)
-        putchar(x & (1u << i) ? '1' : '0');
-    printf("\n");
-}
-
-void draw8bits_fb(chp8_t *c8, uint8_t sprite, uint8_t x, uint8_t y, bool *erased) {
-    // printf("Enter %s\n", __func__);
-    uint8_t bit = 0;
-    for (int i = 0; i < 8; i++, bit = 0) {
-        bit = (sprite >> (7 - i));
-        bit = bit & 0xB001;
-        int tmp = 64 * y + x + i;
-        if (c8->video[tmp] && bit)
-            *erased = 1;
-        int v_tmp = c8->video[tmp] ^ bit;
-        c8->video[tmp] ^= bit;
-    }
-    // printf("Leave %s\n", __func__);
-}
-void draw_pixel(SDL_Renderer *renderer, SDL_Rect *rect, int color) {
-    // printf("Enter %s\n", __func__);
-    if (rect->x >= 64 || rect->y >= 32) {
-        puts("ERROR: Pixel out of bound");
-        exit(EXIT_FAILURE);
-    }
-    SDL_SetRenderDrawColor(renderer, color, color, color, SDL_ALPHA_OPAQUE);
-    rect->x = rect->x * 10;
-    rect->y = rect->y * 10;
-    rect->w = 10;
-    rect->h = 10;
-    SDL_RenderFillRect(renderer, rect);
-    // printf("Leave %s\n", __func__);
+void showbits(unsigned int x)
+{
+	for (int i = (sizeof(uint8_t) * 8) - 1; i >= 0; i--)
+		putchar(x & (1u << i) ? '1' : '0');
+	printf("\n");
 }
 
-void free_video(SDL_Renderer *renderer, SDL_Window *win) {
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(win);
-    SDL_Quit();
+void draw8bits_fb(chp8_t *c8, uint8_t sprite, uint8_t x, uint8_t y,
+		  bool *erased)
+{
+	// printf("Enter %s\n", __func__);
+	uint8_t bit = 0;
+	for (int i = 0; i < 8; i++, bit = 0) {
+		bit = (sprite >> (7 - i));
+		bit = bit & 0xB001;
+		int tmp = 64 * y + x + i;
+		if (c8->video[tmp] && bit)
+			*erased = 1;
+		int v_tmp = c8->video[tmp] ^ bit;
+		c8->video[tmp] ^= bit;
+	}
+	// printf("Leave %s\n", __func__);
+}
+void draw_pixel(SDL_Renderer *renderer, SDL_Rect *rect, int color)
+{
+	// printf("Enter %s\n", __func__);
+	if (rect->x >= 64 || rect->y >= 32) {
+		puts("ERROR: Pixel out of bound");
+		exit(EXIT_FAILURE);
+	}
+	SDL_SetRenderDrawColor(renderer, color, color, color, SDL_ALPHA_OPAQUE);
+	rect->x = rect->x * 10;
+	rect->y = rect->y * 10;
+	rect->w = 10;
+	rect->h = 10;
+	SDL_RenderFillRect(renderer, rect);
+	// printf("Leave %s\n", __func__);
 }
 
-uint8_t poll_events(bool *catched_event, chp8_t *c8, bool wait) {
-    SDL_Event event;
-    uint8_t k = 255;
-    bool inner_wait = wait;
-    bool up = false;
-    while (SDL_PollEvent(&event) || inner_wait) {
-        if ((SDL_QUIT == (event).type) ||
-            (SDL_KEYDOWN == (event).type &&
-             SDL_SCANCODE_ESCAPE == (event).key.keysym.scancode)) {
-            *catched_event = true;
-            break;
-        }
-        if (SDL_KEYDOWN == event.type) {
-            /*TODO replace with switch */
-            printf("pressed %c",event.key.keysym.scancode);
-            if (event.key.keysym.scancode == SDL_SCANCODE_1)
-                k = 0x1;
-            if (event.key.keysym.scancode == SDL_SCANCODE_MINUS)
-                delay -= 1, printf("delay -1");
-            if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
-                delay += 1, printf("delay +1");
-            if (event.key.keysym.scancode == SDL_SCANCODE_2)
-                k = 0x2;
-            if (event.key.keysym.scancode == SDL_SCANCODE_3)
-                k = 0x3;
-            if (event.key.keysym.scancode == SDL_SCANCODE_4)
-                k = 0xc;
-            if (event.key.keysym.scancode == SDL_SCANCODE_Q)
-                k = 0x4;
-            if (event.key.keysym.scancode == SDL_SCANCODE_W)
-                k = 0x5;
-            if (event.key.keysym.scancode == SDL_SCANCODE_E)
-                k = 0x6;
-            if (event.key.keysym.scancode == SDL_SCANCODE_R)
-                k = 0xd;
-            if (event.key.keysym.scancode == SDL_SCANCODE_A)
-                k = 0x7;
-            if (event.key.keysym.scancode == SDL_SCANCODE_S)
-                k = 0x8;
-            if (event.key.keysym.scancode == SDL_SCANCODE_D)
-                k = 0x9;
-            if (event.key.keysym.scancode == SDL_SCANCODE_F)
-                k = 0xe;
-            if (event.key.keysym.scancode == SDL_SCANCODE_Z)
-                k = 0xa;
-            if (event.key.keysym.scancode == SDL_SCANCODE_X)
-                k = 0x0;
-            if (event.key.keysym.scancode == SDL_SCANCODE_C)
-                k = 0xb;
-            if (event.key.keysym.scancode == SDL_SCANCODE_V)
-                k = 0xf;
-            if (k != 255)
-                inner_wait = false;
-        } else if (SDL_KEYUP == event.type) {
-            if (event.key.keysym.scancode == SDL_SCANCODE_1)
-                c8->key[0x1] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_2)
-                c8->key[0x2] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_3)
-                c8->key[0x3] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_4)
-                c8->key[0xc] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_Q)
-                c8->key[0x4] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_W)
-                c8->key[0x5] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_E)
-                c8->key[0x6] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_R)
-                c8->key[0xd] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_A)
-                c8->key[0x7] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_S)
-                c8->key[0x8] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_D)
-                c8->key[0x9] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_F)
-                c8->key[0xe] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_Z)
-                c8->key[0xa] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_X)
-                c8->key[0x0] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_C)
-                c8->key[0xb] = 255;
-            if (event.key.keysym.scancode == SDL_SCANCODE_V)
-                c8->key[0xf] = 255;
-        }
-    }
-    return c8->key[k & 0xf] = k;
+void free_video(SDL_Renderer *renderer, SDL_Window *win)
+{
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(win);
+	SDL_Quit();
+}
 
-    /*
+uint8_t poll_events(bool *catched_event, chp8_t *c8, bool wait)
+{
+	SDL_Event event;
+	uint8_t k = 255;
+	bool inner_wait = wait;
+	bool up = false;
+	while (SDL_PollEvent(&event) || inner_wait) {
+		if ((SDL_QUIT == (event).type) ||
+		    (SDL_KEYDOWN == (event).type &&
+		     SDL_SCANCODE_ESCAPE == (event).key.keysym.scancode)) {
+			*catched_event = true;
+			break;
+		}
+		if (SDL_KEYDOWN == event.type) {
+			/*TODO replace with switch */
+			printf("pressed %c", event.key.keysym.scancode);
+			if (event.key.keysym.scancode == SDL_SCANCODE_1)
+				k = 0x1;
+			if (event.key.keysym.scancode == SDL_SCANCODE_MINUS)
+				delay -= 1, printf("delay -1");
+			if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
+				delay += 1, printf("delay +1");
+			if (event.key.keysym.scancode == SDL_SCANCODE_2)
+				k = 0x2;
+			if (event.key.keysym.scancode == SDL_SCANCODE_3)
+				k = 0x3;
+			if (event.key.keysym.scancode == SDL_SCANCODE_4)
+				k = 0xc;
+			if (event.key.keysym.scancode == SDL_SCANCODE_Q)
+				k = 0x4;
+			if (event.key.keysym.scancode == SDL_SCANCODE_W)
+				k = 0x5;
+			if (event.key.keysym.scancode == SDL_SCANCODE_E)
+				k = 0x6;
+			if (event.key.keysym.scancode == SDL_SCANCODE_R)
+				k = 0xd;
+			if (event.key.keysym.scancode == SDL_SCANCODE_A)
+				k = 0x7;
+			if (event.key.keysym.scancode == SDL_SCANCODE_S)
+				k = 0x8;
+			if (event.key.keysym.scancode == SDL_SCANCODE_D)
+				k = 0x9;
+			if (event.key.keysym.scancode == SDL_SCANCODE_F)
+				k = 0xe;
+			if (event.key.keysym.scancode == SDL_SCANCODE_Z)
+				k = 0xa;
+			if (event.key.keysym.scancode == SDL_SCANCODE_X)
+				k = 0x0;
+			if (event.key.keysym.scancode == SDL_SCANCODE_C)
+				k = 0xb;
+			if (event.key.keysym.scancode == SDL_SCANCODE_V)
+				k = 0xf;
+			if (k != 255)
+				inner_wait = false;
+		} else if (SDL_KEYUP == event.type) {
+			if (event.key.keysym.scancode == SDL_SCANCODE_1)
+				c8->key[0x1] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_2)
+				c8->key[0x2] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_3)
+				c8->key[0x3] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_4)
+				c8->key[0xc] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_Q)
+				c8->key[0x4] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_W)
+				c8->key[0x5] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_E)
+				c8->key[0x6] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_R)
+				c8->key[0xd] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_A)
+				c8->key[0x7] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_S)
+				c8->key[0x8] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_D)
+				c8->key[0x9] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_F)
+				c8->key[0xe] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_Z)
+				c8->key[0xa] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_X)
+				c8->key[0x0] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_C)
+				c8->key[0xb] = 255;
+			if (event.key.keysym.scancode == SDL_SCANCODE_V)
+				c8->key[0xf] = 255;
+		}
+	}
+	return c8->key[k & 0xf] = k;
+
+	/*
     if (wait)
         return c8->key[k & 0xf] = k;
     else
@@ -157,25 +165,28 @@ uint8_t poll_events(bool *catched_event, chp8_t *c8, bool wait) {
         */
 }
 
-void clr(SDL_Renderer *renderer, uint8_t t_color, chp8_t *c8) {
-    printf("color: %i\n", t_color);
-    /* TODO: Use SDL_Color struct? */
-    SDL_SetRenderDrawColor(renderer, t_color, t_color, t_color,
-                           SDL_ALPHA_OPAQUE);
-    memset(c8->video, 0, sizeof(c8->video));
-    SDL_RenderClear(renderer);
+void clr(SDL_Renderer *renderer, uint8_t t_color, chp8_t *c8)
+{
+	printf("color: %i\n", t_color);
+	/* TODO: Use SDL_Color struct? */
+	SDL_SetRenderDrawColor(renderer, t_color, t_color, t_color,
+			       SDL_ALPHA_OPAQUE);
+	memset(c8->video, 0, sizeof(c8->video));
+	SDL_RenderClear(renderer);
 }
 
-void init_video(SDL_Window **win, SDL_Renderer **renderer) {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
-        SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
-        exit(1);
-    }
-    if (SDL_CreateWindowAndRenderer(640, 320, SDL_WINDOW_RESIZABLE, win,
-                                    renderer)) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                     "Couldn't create window and renderer: %s", SDL_GetError());
-        exit(3);
-    }
-    atexit(SDL_Quit);
+void init_video(SDL_Window **win, SDL_Renderer **renderer)
+{
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
+		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
+		exit(1);
+	}
+	if (SDL_CreateWindowAndRenderer(640, 320, SDL_WINDOW_RESIZABLE, win,
+					renderer)) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+			     "Couldn't create window and renderer: %s",
+			     SDL_GetError());
+		exit(3);
+	}
+	atexit(SDL_Quit);
 }
