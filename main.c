@@ -7,6 +7,8 @@
 #include "chip-8.h"
 #include "video.h"
 
+extern uint32_t delay;
+
 void init_rand() {
     /* Intializes random number generator */
     time_t t;
@@ -90,9 +92,8 @@ void dump_video(chp8_t *c8) {
     printf("Leave %s\n", __func__);
 }
 void decrement_timer(chp8_t *c8, uint32_t *last_tick) {
-#define DELAY 1
     uint32_t now = SDL_GetTicks();
-    if (DELAY >= 17) {
+    if (delay >= 17) {
         if (c8->dly_timer)
             c8->dly_timer -= 1;
         else
@@ -103,7 +104,7 @@ void decrement_timer(chp8_t *c8, uint32_t *last_tick) {
             c8->snd_timer -= 0;
     } else {
         uint32_t diff = *last_tick - now;
-        uint32_t ticks_since = diff / 16;
+        uint32_t ticks_since = (uint32_t)( (float) diff / 5);
         c8->dly_timer = (uint8_t)fmax(0, c8->dly_timer - ticks_since);
         c8->snd_timer = (uint8_t)fmax(0, c8->snd_timer - ticks_since);
     }
@@ -113,8 +114,11 @@ void decrement_timer(chp8_t *c8, uint32_t *last_tick) {
 int main(int argc, char **argv) {
     uint32_t last_tick = SDL_GetTicks();
     printf("Enter %s\n", __func__);
+    //uint32_t delay;
+    delay = 10;
     const char *rom;
     if (argv[1]) {
+        puts("1st arg");
         rom = argv[1];
     } else {
         // rom = "/home/dmarfil/projects/chip-8/roms/PONG";
@@ -127,6 +131,10 @@ int main(int argc, char **argv) {
         // "/home/dmarfil/projects/chip-8/roms2/jason.ch8"; rom =
         // "/home/dmarfil/Downloads/BC_test.ch8"; rom =
         // "/home/dmarfil/projects/chip-8/roms2/RandomNumberTestMatthewMikolay2010.ch8";
+    }
+    if (argc >=2 && argv[2]) {
+        puts("second arg");
+        delay = atoi(argv[2]);
     }
 
     init_rand();
@@ -142,7 +150,7 @@ int main(int argc, char **argv) {
         poll_events(&exit_event, c8, false);
         draw_fb(c8, renderer);
         decrement_timer(c8, &last_tick);
-        SDL_Delay(DELAY);
+        SDL_Delay(delay);
     }
 
     free_video(renderer, win);

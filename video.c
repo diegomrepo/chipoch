@@ -24,7 +24,7 @@ void showbits(unsigned int x) {
     printf("\n");
 }
 
-void draw8bits_fb(chp8_t *c8, uint8_t sprite, uint8_t x, uint8_t y) {
+void draw8bits_fb(chp8_t *c8, uint8_t sprite, uint8_t x, uint8_t y, bool *erased) {
     // printf("Enter %s\n", __func__);
     uint8_t bit = 0;
     for (int i = 0; i < 8; i++, bit = 0) {
@@ -32,7 +32,7 @@ void draw8bits_fb(chp8_t *c8, uint8_t sprite, uint8_t x, uint8_t y) {
         bit = bit & 0xB001;
         int tmp = 64 * y + x + i;
         if (c8->video[tmp] && bit)
-            c8->V[0xf] = 1;
+            *erased = 1;
         int v_tmp = c8->video[tmp] ^ bit;
         c8->video[tmp] ^= bit;
     }
@@ -73,8 +73,13 @@ uint8_t poll_events(bool *catched_event, chp8_t *c8, bool wait) {
         }
         if (SDL_KEYDOWN == event.type) {
             /*TODO replace with switch */
+            printf("pressed %c",event.key.keysym.scancode);
             if (event.key.keysym.scancode == SDL_SCANCODE_1)
                 k = 0x1;
+            if (event.key.keysym.scancode == SDL_SCANCODE_MINUS)
+                delay -= 1, printf("delay -1");
+            if (event.key.keysym.scancode == SDL_SCANCODE_PERIOD)
+                delay += 1, printf("delay +1");
             if (event.key.keysym.scancode == SDL_SCANCODE_2)
                 k = 0x2;
             if (event.key.keysym.scancode == SDL_SCANCODE_3)
@@ -143,6 +148,13 @@ uint8_t poll_events(bool *catched_event, chp8_t *c8, bool wait) {
         }
     }
     return c8->key[k & 0xf] = k;
+
+    /*
+    if (wait)
+        return c8->key[k & 0xf] = k;
+    else
+        return 255;
+        */
 }
 
 void clr(SDL_Renderer *renderer, uint8_t t_color, chp8_t *c8) {

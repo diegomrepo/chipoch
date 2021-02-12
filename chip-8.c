@@ -27,15 +27,13 @@ void cycle(chp8_t *c8, bool *event) {
     puts("");
 
     opcode = c8->memory[c8->pc] << 8 | c8->memory[c8->pc + 1]; // get instrc.
-    c8->pc = c8->pc + 2;
     printf("opcode = 0x%04x\n", opcode);
-    if (opcode == 0)
-        *event = true;
+    if (opcode == 0) *event = true;
 
-    int num = chip_rand();
+    c8->pc = c8->pc + 2;
+    if (c8->pc > RAM_LIMIT) *event = true;
+//    int num = chip_rand();
     execute(c8, opcode);
-    if (c8->pc > RAM_LIMIT)
-        *event = true;
 }
 
 uint8_t chip_rand() { return rand() % 256; }
@@ -123,7 +121,7 @@ void op7XNN(chp8_t *c8, uint16_t op) {
     printf("** 7xkk - ADD Vx, byte **\n");
     uint8_t x = (op & 0x0f00) >> 8;
     uint8_t kk = op & 0x00ff;
-    c8->V[x] += kk;
+    c8->V[x] = (uint8_t)(c8->V[x]+kk);
 }
 
 /* multi 8 */
@@ -245,33 +243,34 @@ void opBNNN(chp8_t *c8, uint16_t op) {
 
 void opCXNN(chp8_t *c8, uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
-    puts("** Cxkk - RND Vx, byte **");
     uint8_t kk = op & 0xff;
     uint8_t x = (op & 0x0f00) >> 8;
     uint8_t rand = chip_rand();
     uint8_t operation = rand & kk;
 
     // c8->V[x] = chip_rand() & kk;
-    printf("kk: %02x x: %02x, rand(): %02x, operation: %02x", kk, x, rand,
-           operation);
-    puts("");
+    //printf("kk: %02x x: %02x, rand(): %02x, operation: %02x", kk, x, rand, operation);
+    //puts("");
     c8->V[x] = operation;
+    puts("** Cxkk - RND Vx, byte **");
 }
 
 void opDXYN(chp8_t *c8, uint16_t op) {
     printf("Opcode function is: %s with %04x\n", __func__, op);
-    puts("** Dxyn - DRW Vx, Vy, nibble **");
     uint8_t n = op & 0x000f;
     uint8_t y = (op & 0x00f0) >> 4;
     uint8_t x = (op & 0x0f00) >> 8;
     uint16_t tmp = c8->i_register;
+    bool erased = false;
     if (tmp > MEM_SIZE) {
         printf("ERROR: I_register bigger than MEM_SIZE");
         exit(EXIT_FAILURE);
     }
     for (int i = 0; i < n; i++, tmp++) {
-        draw8bits_fb(c8, c8->memory[tmp], c8->V[x], c8->V[y] + i);
+        draw8bits_fb(c8, c8->memory[tmp], c8->V[x], c8->V[y] + i, &erased);
     }
+    c8->V[0xf] = erased;
+    puts("** Dxyn - DRW Vx, Vy, nibble **");
 }
 
 void opEX9E(chp8_t *c8, uint16_t op) {

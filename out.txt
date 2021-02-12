@@ -1,0 +1,29 @@
+[50 % ] Built target chip -
+    8 [100 % ] Built target chipoch rand initialized : 106 chip initialized Size
+        of buffer : 8 bytes 00e0 c0ff a224 f033 f265 f029 6000 6300 d035
+            f129 6005 d035 f229 600a d035 f00a 1200 PC = 0x0200 opcode =
+    0x00e0 Opcode function is : op00E0 with 00e0 PC = 0x0202 opcode =
+                                    0xc0ff Opcode function is
+    : opCXNN with c0ff PC = 0x0204 opcode = 0xa224 Opcode function is
+    : opANNN with a224 PC = 0x0206 opcode = 0xf033 MULTI - OPCODE : opFXNN,
+                                                    f033 Opcode function is
+    : opFX33 with f033 PC = 0x0208 opcode = 0xf265 MULTI - OPCODE : opFXNN,
+                                                    f265 Opcode function is
+    : opFX65 with f265 PC = 0x020a opcode = 0xf029 MULTI - OPCODE : opFXNN,
+                                                    f029 Opcode function is
+    : opFX29 with f029 PC = 0x020c opcode = 0x6000 Opcode function is
+    : op6XNN with 6000 PC = 0x020e opcode = 0x6300 Opcode function is
+    : op6XNN with 6300 PC = 0x0210 opcode = 0xd035 Opcode function is
+    : opDXYN with d035 PC = 0x0212 opcode = 0xf129 MULTI - OPCODE : opFXNN,
+                                                    f129 Opcode function is
+    : opFX29 with f129 PC = 0x0214 opcode = 0x6005 Opcode function is
+    : op6XNN with 6005 PC = 0x0216 opcode = 0xd035 Opcode function is
+    : opDXYN with d035 PC = 0x0218 opcode = 0xf229 MULTI - OPCODE : opFXNN,
+                                                    f229 Opcode function is
+    : opFX29 with f229 PC = 0x021a opcode = 0x600a Opcode function is
+    : op6XNN with 600a PC = 0x021c opcode = 0xd035 Opcode function is
+    : opDXYN with d035 PC = 0x021e opcode = 0xf00a MULTI - OPCODE : opFXNN,
+                                                    f00a Opcode function is
+    : opFX0A with f00a PC = 0x0220 opcode = 0x1200 Opcode function is
+    : op1NNN with 1200 PC = 0x0222 opcode =
+          0x0000 Opcode function is : op0NNN with 0000 [100 % ] Built target run

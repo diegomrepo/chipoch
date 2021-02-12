@@ -11,6 +11,7 @@
 #define RAM_LIMIT 0xE8F /* Adressable top limit For user programs */
 #define STACK_SIZE 0xF
 
+
 /*TODO: Make this struct private */
 typedef struct {
     uint8_t video[64 * 32];
