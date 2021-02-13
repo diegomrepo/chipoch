@@ -1,3 +1,21 @@
+/*
+ * chipoch is a CHIP-8 emulator done in C
+ * Copyright (C) 2020 Diego Marfil <diegomrepo@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -6,13 +24,20 @@
 
 #include "chip-8.h"
 #include "video.h"
+
 #define NUM_KEYS 16
 
+/**
+ * One CPU cycle
+ *
+ * @param *c8 Pointer to main chip structure
+ * @param *event halt event condition
+ */
 void cycle(chp8_t *c8, bool *event)
 {
-	// dump_memory(c8);
 	uint16_t opcode = 0;
 
+	/* Print CPU registers */
 	printf("\n\nPC = 0x%04x", c8->pc);
 	printf(" | DT = %d", c8->dly_timer);
 	printf(" | ST = %d", c8->dly_timer);
@@ -27,8 +52,8 @@ void cycle(chp8_t *c8, bool *event)
 	}
 	puts("");
 
-	opcode =
-		c8->memory[c8->pc] << 8 | c8->memory[c8->pc + 1]; // get instrc.
+	opcode = c8->memory[c8->pc] << 8 |
+		 c8->memory[c8->pc + 1]; /* get instrc. */
 	printf("opcode = 0x%04x\n", opcode);
 	if (opcode == 0)
 		*event = true;
@@ -36,18 +61,31 @@ void cycle(chp8_t *c8, bool *event)
 	c8->pc = c8->pc + 2;
 	if (c8->pc > RAM_LIMIT)
 		*event = true;
-	//    int num = chip_rand();
 	execute(c8, opcode);
 }
 
+/**
+ * 'Hardware' RAND function
+ *
+ * @return Random number between 0 and 255
+ */
 uint8_t chip_rand()
 {
 	return rand() % 256;
 }
+
+/**
+ * FULL Opcode list (35 in this implementation)
+ *
+ * @param *c8 Pointer to main chip structure
+ * @param op Opcode definition
+ */
 void op0NNN(chp8_t *c8, uint16_t op)
 {
 	printf("Opcode function is: %s with %04x\n", __func__, op);
 	puts("IGNORED: Not in current specification");
+	/* Anti-warning msg */
+	printf("The value of c8 is: %p\n", (void *)c8);
 	puts("** 0nnn - SYS addr **");
 }
 
@@ -75,7 +113,6 @@ void op1NNN(chp8_t *c8, uint16_t op)
 	printf("Opcode function is: %s with %04x\n", __func__, op);
 	printf("** JP addr **\n");
 	c8->pc = op & 0x0fff;
-	// printf("PC is now %04x\n", op);
 }
 
 void op2XNN(chp8_t *c8, uint16_t op)
@@ -206,8 +243,8 @@ void op8XN6(chp8_t *c8, uint16_t op)
 	printf("Opcode function is: %s with %04x\n", __func__, op);
 	printf("** 8xy6 - SHR Vx {, Vy} **\n");
 	uint8_t x = (op & 0x0f00) >> 8;
-	uint8_t y = (op & 0x00f0) >> 4;
-	/* y not used? */
+	/* WARNING: y not used? */
+	/* uint8_t y = (op & 0x00f0) >> 4; */
 	c8->V[0xf] = c8->V[x] & 1;
 	c8->V[x] = c8->V[x] >> 1;
 }
@@ -228,10 +265,8 @@ void op8XNE(chp8_t *c8, uint16_t op)
 	printf("Opcode function is: %s with %04x\n", __func__, op);
 	printf("** 8xyE - SHL Vx {, Vy} **\n");
 	uint8_t x = (op & 0x0f00) >> 8;
-	uint8_t y = (op & 0x00f0) >> 4;
-	/* y not used? */
-	// uint8_t msb; = c8->V[x] & 0xb1000;
-	// msb; = c8->V[x] & 0xb1000;
+	/* WARNING: y not used? */
+	/* uint8_t y = (op & 0x00f0) >> 4; */
 	c8->V[0xf] = c8->V[x] >> 7;
 	c8->V[x] = c8->V[x] << 1;
 }
@@ -281,9 +316,6 @@ void opCXNN(chp8_t *c8, uint16_t op)
 	uint8_t rand = chip_rand();
 	uint8_t operation = rand & kk;
 
-	// c8->V[x] = chip_rand() & kk;
-	// printf("kk: %02x x: %02x, rand(): %02x, operation: %02x", kk, x, rand,
-	// operation); puts("");
 	c8->V[x] = operation;
 	puts("** Cxkk - RND Vx, byte **");
 }
@@ -433,18 +465,32 @@ void opFXNN(chp8_t *c8, uint16_t op)
 	opFX_fn[byte](c8, op);
 }
 
+/**
+ * Opcode's pointer table
+ *
+ * @param *c8 Pointer to main chip structure
+ * @note One way to implement this is a switch statement,
+ * but it gets messy when you have a lot of instructions.
+ * Instead we’ll implement an array of function pointers where the opcode
+ * is an index into an array of function pointers
+ */
 void (*cmd_pointer[OPCODE_MAX])(chp8_t *c8, uint16_t opcode) = { NULL };
+
+/**
+ * Chip Initialization
+ *
+ * @return Initializated main chip structure
+ */
 chp8_t *init_chip()
 {
 	printf("rand initialized: %d\n", chip_rand());
 	chp8_t *c8 = malloc(sizeof(chp8_t));
+	/* TODO: Find out if this is best way (memset) */
 	memset(c8, 0, sizeof(chp8_t));
-	memset(c8->memory, 0, MEM_SIZE); /* best way? */
-	memset(c8->video, 0, sizeof(c8->video)); /* best way? */
-	memset(c8->V, 0,
-	       sizeof(c8->V)); /* TODO: Find out if this is best way */
-	memset(c8->key, 255,
-	       sizeof(c8->key)); /* TODO: Find out if this is best way */
+	memset(c8->memory, 0, MEM_SIZE);
+	memset(c8->video, 0, sizeof(c8->video));
+	memset(c8->V, 0, sizeof(c8->V));
+	memset(c8->key, 255, sizeof(c8->key));
 	memcpy(c8->memory, fontset, sizeof fontset);
 	c8->i_register = 0;
 	c8->pc = START_ADDR;
@@ -492,6 +538,13 @@ chp8_t *init_chip()
 	return c8;
 }
 
+/**
+ * Executes an opcode from the function table
+ * if it's valid
+ *
+ * @param *c8 Pointer to main chip structure
+ * @param op Current opcode
+ */
 void execute(chp8_t *c8, uint16_t op)
 {
 	if (cmd_pointer[op])

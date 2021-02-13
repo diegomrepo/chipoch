@@ -1,3 +1,22 @@
+
+/*
+ * chipoch is a CHIP-8 emulator done in C
+ * Copyright (C) 2020 Diego Marfil <diegomrepo@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -9,16 +28,28 @@
 
 #define KNRM "\x1B[0m"
 #define KRED "\x1B[31m"
+#define DEFAULT_ROM "../roms/PONG2"
 
 extern uint32_t delay;
 
+/**
+ * Intializes random number generator
+ * @note Needed for 'hardware' simulated RAND
+ *
+ */
 void init_rand()
 {
-	/* Intializes random number generator */
 	time_t t;
 	srand((unsigned)time(&t));
 }
 
+/**
+ * Loads ROM File
+ *
+ * @param *c8 Pointer to main chip structure
+ * @param *rom Static relative or full path to ROM
+ * @note Exit code, constant that is platform independent 
+ */
 void load_rom(chp8_t *c8, const char *rom)
 {
 	printf("Enter %s\n", __func__);
@@ -62,6 +93,13 @@ void load_rom(chp8_t *c8, const char *rom)
 	printf("Close %s\n", __func__);
 }
 
+/**
+ * Dumps RAM. Optionally dumps interpreter ROM,
+ * and font data.
+ *
+ * @param *c8 Pointer to main chip structure
+ * @param dump_all flag to dump entire memory or just RAM
+ */
 void dump_memory(chp8_t *c8, bool dump_all)
 {
 	unsigned int start, limit;
@@ -73,8 +111,7 @@ void dump_memory(chp8_t *c8, bool dump_all)
 		limit = 0x0000;
 	}
 	printf("Enter %s\n", __func__);
-	for (int16_t i = start; i < RAM_LIMIT;
-	     i = i + 2) { 
+	for (int16_t i = start; i < RAM_LIMIT; i = i + 2) {
 		if (c8->memory[i] == limit)
 			continue;
 		printf("%04x: %02x%02x  \n", i, c8->memory[i],
@@ -83,7 +120,11 @@ void dump_memory(chp8_t *c8, bool dump_all)
 	printf("Leave %s\n", __func__);
 }
 
-
+/**
+ * Dumps display memory (framebuffer)
+ *
+ * @param *c8 Pointer to main chip structure
+ */
 void dump_video(chp8_t *c8)
 {
 	printf("Enter %s\n", __func__);
@@ -97,6 +138,14 @@ void dump_video(chp8_t *c8)
 	}
 	printf("Leave %s\n", __func__);
 }
+
+/**
+ * Chip-8 timer decrement function.
+ * Uses SDL tick feature.
+ *
+ * @param *c8 Pointer to main chip structure
+ * @return last_tick self explanatory
+ */
 void decrement_timer(chp8_t *c8, uint32_t *last_tick)
 {
 	uint32_t now = SDL_GetTicks();
@@ -118,26 +167,36 @@ void decrement_timer(chp8_t *c8, uint32_t *last_tick)
 	*last_tick = now;
 }
 
+/**
+ * Application's main entry point.
+ *
+ * @param argc Argument counter
+ * @param argv Argument vector
+ * @return EXIT_SUCCESS if final point is reached
+ *         without errors
+ * @note ROM filename and tick delay can be given
+ *       as parameter
+ */
 int main(int argc, char **argv)
 {
 	uint32_t last_tick = SDL_GetTicks();
 	printf("Enter %s\n", __func__);
-	delay = 10;
+	delay = 1;
 	const char *rom;
 
 	if (argv[1]) {
-		puts("1st arg");
+		puts("Setting ROM from args");
 		rom = argv[1];
 	} else {
-		rom = "../roms/PONG2";
+		rom = DEFAULT_ROM;
 	}
 	if (argc >= 2 && argv[2]) {
-		puts("second arg");
+		puts("Setting delay from args");
 		delay = atoi(argv[2]);
 	}
 
 	init_rand();
-	chp8_t *c8 = init_chip(); 
+	chp8_t *c8 = init_chip();
 	init_video(&win, &renderer);
 	load_rom(c8, rom);
 	dump_memory(c8, true);
@@ -152,7 +211,5 @@ int main(int argc, char **argv)
 	}
 
 	free_video(renderer, win);
-	printf("Press ENTER key to Continue\n");
-	char ch;
-	scanf("%c", &ch);
+	exit(EXIT_SUCCESS);
 }
