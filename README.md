@@ -2,7 +2,7 @@
 
 A chip-8 emulator in C (C11)
 
-![pong demo image](https://en.wikipedia.org/wiki/CHIP-8#/media/File:Space_intercept.png)
+![pong demo image](https://upload.wikimedia.org/wikipedia/commons/5/54/Space_intercept.png)
 
 
 ## Table of Contents
