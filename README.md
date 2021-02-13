@@ -2,7 +2,7 @@
 
 A chip-8 emulator in C (C11)
 
-![pong demo image](https://upload.wikimedia.org/wikipedia/commons/5/54/Space_intercept.png)
+![Telmac 1800 running chip-8](https://i.imgur.com/ubpUslF.jpg)
 
 
 ## Table of Contents
@@ -47,6 +47,7 @@ To build using meson, once inside the project dir type:
 ```sh
 mkdir builddir
 cd builddir/
+meson
 meson compile
 ./chipoch
 ```
