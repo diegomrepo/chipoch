@@ -52,7 +52,6 @@ void init_rand()
  */
 void load_rom(chp8_t *c8, const char *rom)
 {
-	printf("Enter %s\n", __func__);
 	FILE *pFile;
 
 	uint8_t *buffer = &(c8->memory[START_ADDR]);
@@ -90,7 +89,6 @@ void load_rom(chp8_t *c8, const char *rom)
 
 	/* terminate */
 	fclose(pFile);
-	printf("Close %s\n", __func__);
 }
 
 /**
@@ -110,14 +108,12 @@ void dump_memory(chp8_t *c8, bool dump_all)
 		start = START_ADDR;
 		limit = 0x0000;
 	}
-	printf("Enter %s\n", __func__);
 	for (int16_t i = start; i < RAM_LIMIT; i = i + 2) {
 		if (c8->memory[i] == limit)
 			continue;
 		printf("%04x: %02x%02x  \n", i, c8->memory[i],
 		       c8->memory[i + 1]);
 	}
-	printf("Leave %s\n", __func__);
 }
 
 /**
@@ -127,7 +123,6 @@ void dump_memory(chp8_t *c8, bool dump_all)
  */
 void dump_video(chp8_t *c8)
 {
-	printf("Enter %s\n", __func__);
 	char *color[2] = { KNRM, KRED };
 	for (int i = 0; i < 32; ++i) {
 		for (int j = 0; j < 64; ++j) {
@@ -136,7 +131,6 @@ void dump_video(chp8_t *c8)
 		}
 		putchar('\n');
 	}
-	printf("Leave %s\n", __func__);
 }
 
 /**
@@ -180,7 +174,6 @@ void decrement_timer(chp8_t *c8, uint32_t *last_tick)
 int main(int argc, char **argv)
 {
 	uint32_t last_tick = SDL_GetTicks();
-	printf("Enter %s\n", __func__);
 	delay = 1;
 	const char *rom;
 
