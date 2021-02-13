@@ -10,7 +10,7 @@ A chip-8 emulator in C (C11)
 - [Spec](#spec)
 - [TODO](#todo)
 - [Requirements](#requirements)
-- [Buiding](#building)
+- [Building and running](#building)
 - [Keymapping](#keymapping)
 - [Support](#support)
 - [Contributing](#contributing)
@@ -38,7 +38,7 @@ A chip-8 emulator in C (C11)
 
 ## Requirements
 
-You'll need the lastest version of `meson` and `ninja-build` to compile.
+You'll need the lastest version of `meson` and `ninja-build` to build.
 Also the SDL2 libray (called libsdl2-dev in Debian-based systems).
 
 ## Building and running
