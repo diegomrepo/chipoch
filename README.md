@@ -10,7 +10,7 @@ A chip-8 emulator in C (C11)
 - [Spec](#spec)
 - [TODO](#todo)
 - [Requirements](#requirements)
-- [Building and running](#building)
+- [Building](#building)
 - [Keymapping](#keymapping)
 - [Support](#support)
 - [Contributing](#contributing)
@@ -38,13 +38,17 @@ A chip-8 emulator in C (C11)
 
 ## Requirements
 
-You'll need the lastest version of `meson` and `ninja-build` to build.
-Also the SDL2 libray (called libsdl2-dev in Debian-based systems).
+You'll need `ninja-build` and `meson` to build. The latter should be at least version `0.56` otherwise it won't work out of the box (you can generally get last version from `pip`). `meson` should automatically detect your default compiler, so any compiler that supports `C11` will do. Finally, the SDL2 libray is needed for gfx and sound.
+For a Debian-based system you should fullfill all the requiremens with:
+```
+sudo apt update && apt install ninja-build libsdl2-dev python3-pip -y && pip3 install meson
+```
 
-## Building and running
+## Building
 
-To build using meson, once inside the project dir type:
 ```sh
+git clone https://github.com/gnudiego/chipoch.git
+cd chipoch
 mkdir builddir
 cd builddir/
 meson
