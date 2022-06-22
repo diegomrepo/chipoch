@@ -47,7 +47,7 @@ sudo apt update && sudo apt install ninja-build libsdl2-dev python3-pip -y && pi
 ## Building
 
 ```sh
-git clone https://github.com/gnudiego/chipoch.git
+git clone https://github.com/diegomrepo/chipoch.git
 cd chipoch
 mkdir builddir
 cd builddir/
